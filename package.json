@@ -1,0 +1,50 @@
+{
+  "name": "loadic",
+  "version": "0.1.0",
+  "description": "Lightweight assets loader.",
+  "keywords": [
+    "loader"
+  ],
+  "homepage": "https://github.com/gbiryukov/loadic",
+  "license": "MIT",
+  "author": {
+    "name": "George",
+    "email": "george@biryukov.ws"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gbiryukov/loadic.git"
+  },
+  "main": "./dist/loadic",
+  "devDependencies": {
+    "babel-plugin-check-es2015-constants": "^6.1.18",
+    "babel-plugin-transform-es2015-arrow-functions": "^6.1.18",
+    "babel-plugin-transform-es2015-block-scoped-functions": "^6.1.18",
+    "babel-plugin-transform-es2015-block-scoping": "^6.1.18",
+    "babel-plugin-transform-es2015-classes": "^6.1.18",
+    "babel-plugin-transform-es2015-computed-properties": "^6.1.18",
+    "babel-plugin-transform-es2015-destructuring": "^6.1.18",
+    "babel-plugin-transform-es2015-for-of": "^6.1.18",
+    "babel-plugin-transform-es2015-function-name": "^6.1.18",
+    "babel-plugin-transform-es2015-literals": "^6.1.18",
+    "babel-plugin-transform-es2015-modules-amd": "^6.1.18",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.1.18",
+    "babel-plugin-transform-es2015-object-super": "^6.1.18",
+    "babel-plugin-transform-es2015-parameters": "^6.1.18",
+    "babel-plugin-transform-es2015-shorthand-properties": "^6.1.18",
+    "babel-plugin-transform-es2015-spread": "^6.1.18",
+    "babel-plugin-transform-es2015-sticky-regex": "^6.1.18",
+    "babel-plugin-transform-es2015-template-literals": "^6.1.18",
+    "babel-plugin-transform-es2015-typeof-symbol": "^6.1.18",
+    "babel-plugin-transform-es2015-unicode-regex": "^6.1.18",
+    "babel-plugin-transform-regenerator": "^6.1.18",
+    "gulp": "~3.9.0",
+    "gulp-babel": "^6.1.0",
+    "gulp-rename": "^1.2.2"
+  },
+  "bugs": {
+    "url": "https://github.com/gbiryukov/loadic/issues"
+  },
+  "scripts": {},
+  "directories": {}
+}
