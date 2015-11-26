@@ -53,15 +53,26 @@ require(['loadic/loadic.amd'], function(Loader){
             'images/example2.jpg'
         ]
     });
-
-    loader.onProgress = function(progress){
-        console.log('loaded: ' + progress + '%');
-    }
-
-    loader.onComplete = function(){
-        console.log('complete');
-    }
+    
+    // etc...
 });
+```
+
+No modules
+
+```JavaScript
+var loader = new loadic({
+    common: [
+        'images/example1.jpg',
+        'images/example3.bmp!',
+        'css/external.css'
+    ],
+    dpiDependent: [
+        'images/example2.jpg'
+    ]
+});
+
+// etc...
 ```
 
 ### Options
