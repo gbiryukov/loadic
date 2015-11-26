@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Loadic demo</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <header class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a href="#" class="navbar-brand">
+                    Loadic demo
+                </a>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-9">
+                <h1>Демонстрация loadic.js</h1>
+                <button class="btn btn-warning" id="load">Прогрузить ресурсы</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-9">
+                <br>
+                <br>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-9">
+                <h4 class="styled-external">После загрузки стиля у меня появится рамочка</h4>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/lib/loadic.global.js"></script>
+    <script>
+        var button = document.getElementById('load');
+
+        button.addEventListener('click', function(){
+
+            var progressBar = document.querySelector('.progress-bar'),
+                loader = new loadic({
+                    common: [
+                        'images/example1.jpg',
+                        'images/example3.bmp!',
+                        'css/external.css'
+                    ],
+                    dpiDependent: [
+                        'images/example2.jpg'
+                    ],
+                    highDpiSuffix: '@2x',
+                    highDpiCondition: function(){
+                        return window.innerHeight > 800 || window.devicePixelRatio > 1;
+                    },
+                    timeout: 3000
+                });
+
+            loader.onProgress = function(progress){
+                progressBar.style.width = progress + '%';
+            };
+
+            loader.onComplete = function(){
+                button.innerHTML = 'Готово';
+            };
+
+            button.setAttribute('disabled', true);
+        });
+    </script>
+</body>
+</html>
