@@ -1,5 +1,6 @@
 'use strict';
 
+const INTERVAL_TIME = 500;
 const DEFAULTS = {
     common: {
         type: Array,
@@ -18,6 +19,10 @@ const DEFAULTS = {
         value: () => {
             return window.devicePixelRatio > 1;
         }
+    },
+    timeout: {
+        type: Number,
+        value: false
     }
 };
 
@@ -25,7 +30,7 @@ export default class Loader {
     constructor(config){
 
         // config sanitization
-        for (let key in config){
+        for (let key in DEFAULTS){
             if (!config[key] instanceof DEFAULTS[key].type) {
                 config[key] = DEFAULTS[key].value;
             }
@@ -42,17 +47,23 @@ export default class Loader {
 
         this.loadedCount = 0;
         this.resourcesTotal = resources.length;
+        this.progress = 0;
+
+        if (config.timeout) {
+            this.scheduleComplete(config.timeout);
+        }
 
         for (var i in resources){
             this.preload(resources[i]);
         }
 
+        this.simulateProgress();
+
         return this;
     }
 
     preload(url) {
-        var self = this,
-            isStyle = /.css$/.test(url),
+        var isStyle = /.css$/.test(url),
             srcName = 'data',
             resource = document.createElement('object');
 
@@ -65,14 +76,13 @@ export default class Loader {
             resource.height = 0;
         }
 
-        resource.onload = function() {
-            self.loaded();
+        resource.onload = () => {
+            this.loaded();
         };
 
-        resource.onerror = function() {
-            self.loaded();
+        resource.onerror = () => {
+            this.loaded();
         };
-
 
         resource[srcName] = url;
         document.body.appendChild(resource);
@@ -80,10 +90,7 @@ export default class Loader {
 
     loaded() {
         this.loadedCount++;
-
-        if ('onProgress' in this){
-            this.onProgress(parseInt(this.loadedCount/this.resourcesTotal*100));
-        }
+        this.updateProgress();
 
         if (this.loadedCount === this.resourcesTotal) {
             this.complete();
@@ -91,8 +98,49 @@ export default class Loader {
     }
 
     complete() {
+        clearInterval(this.intervalId);
+        clearInterval(this.timeoutId);
+
         if ('onComplete' in this){
             this.onComplete();
         }
+    }
+
+    updateProgress(forcePercent){
+        let realProgress = parseInt(this.loadedCount / this.resourcesTotal * 100);
+
+        if (this.progress < realProgress){
+            this.progress = realProgress;
+        }
+
+        if (this.progress < forcePercent){
+            this.progress = forcePercent;
+        }
+
+        if ('onProgress' in this){
+            this.onProgress(this.progress);
+        }
+    }
+
+    scheduleComplete(timeout){
+        this.timeoutId = setTimeout(() => {
+            this.complete();
+        }, timeout);
+    }
+
+    simulateProgress(){
+        var iteration = 0;
+
+        this.intervalId = setInterval(() => {
+            iteration++;
+
+            let progressInc = 5 / Math.ceil(iteration / 10) * (1 - this.progress / 100);
+
+            if (this.progress + progressInc < 95) {
+                this.updateProgress(this.progress + progressInc);
+            } else {
+                clearInterval(this.intervalId);
+            }
+        }, INTERVAL_TIME);
     }
 };

@@ -24,11 +24,11 @@ require(['lib/loadic.amd'], function(Loadic){
 
         loader.onProgress = function(progress){
             progressBar.style.width = progress + '%';
-        }
+        };
 
         loader.onComplete = function(){
             button.innerHTML = 'Готово';
-        }
+        };
 
         button.setAttribute('disabled', true);
     });

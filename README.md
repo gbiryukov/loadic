@@ -82,5 +82,9 @@ Suffix which will be appended to dpi dependent images in case of high resolution
 This function is called to determine whether to use high definition resources or standard definition resources.
 **Default: ```window.devicePixelRatio > 1```**
 
+#### timeout
+When user has slow connection, he can bounce due to the long loading screen. Experiment with this option and network throttling to achieve the best user experience. When timeout expires, onComplete callback will be fired and you can minimize progress bar.
+**Default: false**
+
 ### License
 MIT
