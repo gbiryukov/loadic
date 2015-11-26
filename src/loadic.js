@@ -31,7 +31,7 @@ export default class Loader {
 
         // config sanitization
         for (let key in DEFAULTS){
-            if (!config[key] instanceof DEFAULTS[key].type) {
+            if (!(config[key] instanceof DEFAULTS[key].type)) {
                 config[key] = DEFAULTS[key].value;
             }
         }

@@ -60,7 +60,7 @@ define(['exports'], function (exports) {
             _classCallCheck(this, Loader);
 
             for (var key in DEFAULTS) {
-                if (!config[key] instanceof DEFAULTS[key].type) {
+                if (!(config[key] instanceof DEFAULTS[key].type)) {
                     config[key] = DEFAULTS[key].value;
                 }
             }
