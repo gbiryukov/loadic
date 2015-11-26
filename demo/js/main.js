@@ -10,7 +10,7 @@ require(['lib/loadic.amd'], function(Loadic){
             loader = new Loadic.default({
                 common: [
                     'images/example1.jpg',
-                    'images/example3.bmp',
+                    'images/example3.bmp!',
                     'css/external.css'
                 ],
                 dpiDependent: [
@@ -19,7 +19,8 @@ require(['lib/loadic.amd'], function(Loadic){
                 highDpiSuffix: '@2x',
                 highDpiCondition: function(){
                     return window.innerHeight > 800 || window.devicePixelRatio > 1;
-                }
+                },
+                timeout: 3000
             });
 
         loader.onProgress = function(progress){

@@ -71,17 +71,17 @@ define(['exports'], function (exports) {
                 });
             }
 
-            var resources = config.common.concat(config.dpiDependent);
-            this.loadedCount = 0;
-            this.resourcesTotal = resources.length;
             this.progress = 0;
+            this.loadedCount = 0;
+            this.resources = this.getManifest(config);
+            this.resourcesTotal = this.resources.length;
 
             if (config.timeout) {
                 this.scheduleComplete(config.timeout);
             }
 
-            for (var i in resources) {
-                this.preload(resources[i]);
+            for (var i in this.resources) {
+                this.preload(this.resources[i]);
             }
 
             this.simulateProgress();
@@ -90,38 +90,44 @@ define(['exports'], function (exports) {
 
         _createClass(Loader, [{
             key: 'preload',
-            value: function preload(url) {
+            value: function preload(resource) {
                 var _this = this;
 
-                var isStyle = /.css$/.test(url),
+                var isStyle = /.css$/.test(resource.src),
                     srcName = 'data',
-                    resource = document.createElement('object');
+                    element = document.createElement('object');
 
                 if (isStyle) {
-                    resource = document.createElement('link');
-                    resource.rel = 'stylesheet';
+                    element = document.createElement('link');
+                    element.rel = 'stylesheet';
                     srcName = 'href';
                 } else {
-                    resource.width = 0;
-                    resource.height = 0;
+                    element.width = 0;
+                    element.height = 0;
                 }
 
-                resource.onload = function () {
-                    _this.loaded();
+                element.onload = function () {
+                    resource.loaded = true;
+
+                    _this.loaded(resource);
                 };
 
-                resource.onerror = function () {
-                    _this.loaded();
+                element.onerror = function () {
+                    _this.loaded(resource);
                 };
 
-                resource[srcName] = url;
-                document.body.appendChild(resource);
+                element[srcName] = resource.src;
+                document.body.appendChild(element);
             }
         }, {
             key: 'loaded',
-            value: function loaded() {
+            value: function loaded(resource) {
                 this.loadedCount++;
                 this.updateProgress();
+
+                if (resource.required && this.loadingTimedOut) {
+                    this.scheduleComplete(0);
+                }
 
                 if (this.loadedCount === this.resourcesTotal) {
                     this.complete();
@@ -160,7 +166,15 @@ define(['exports'], function (exports) {
                 var _this2 = this;
 
                 this.timeoutId = setTimeout(function () {
-                    _this2.complete();
+                    var isAllRequiredLoaded = _this2.resources.some(function (resource) {
+                        return resource.required && resource.loaded;
+                    });
+
+                    if (isAllRequiredLoaded) {
+                        _this2.complete();
+                    } else {
+                        _this2.loadingTimedOut = true;
+                    }
                 }, timeout);
             }
         }, {
@@ -175,8 +189,38 @@ define(['exports'], function (exports) {
 
                     if (_this3.progress + progressInc < 95) {
                         _this3.updateProgress(_this3.progress + progressInc);
+                    } else {
+                        clearInterval(_this3.intervalId);
                     }
                 }, INTERVAL_TIME);
+            }
+        }, {
+            key: 'getManifest',
+            value: function getManifest(config) {
+                var urls = config.common.concat(config.dpiDependent);
+                var resources = urls.map(function (url) {
+                    var resource = undefined;
+
+                    if (typeof url === 'string') {
+                        if (url.lastIndexOf('!') === url.length - 1) {
+                            resource = {
+                                src: url.substr(0, url.length - 1),
+                                required: true
+                            };
+                        } else {
+                            resource = {
+                                src: url
+                            };
+                        }
+                    } else {
+                        resource = url;
+                    }
+
+                    return resource;
+                });
+                return resources.sort(function (resource) {
+                    return resource.required ? -1 : 1;
+                });
             }
         }]);
 

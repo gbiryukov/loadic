@@ -43,18 +43,17 @@ export default class Loader {
             });
         }
 
-        var resources = config.common.concat(config.dpiDependent);
-
-        this.loadedCount = 0;
-        this.resourcesTotal = resources.length;
         this.progress = 0;
+        this.loadedCount = 0;
+        this.resources = this.getManifest(config);
+        this.resourcesTotal = this.resources.length;
 
         if (config.timeout) {
             this.scheduleComplete(config.timeout);
         }
 
-        for (var i in resources){
-            this.preload(resources[i]);
+        for (let i in this.resources){
+            this.preload(this.resources[i]);
         }
 
         this.simulateProgress();
@@ -62,35 +61,40 @@ export default class Loader {
         return this;
     }
 
-    preload(url) {
-        var isStyle = /.css$/.test(url),
+    preload(resource) {
+        let isStyle = /.css$/.test(resource.src),
             srcName = 'data',
-            resource = document.createElement('object');
+            element = document.createElement('object');
 
         if (isStyle) {
-            resource = document.createElement('link');
-            resource.rel = 'stylesheet';
+            element = document.createElement('link');
+            element.rel = 'stylesheet';
             srcName = 'href';
         } else {
-            resource.width = 0;
-            resource.height = 0;
+            element.width = 0;
+            element.height = 0;
         }
 
-        resource.onload = () => {
-            this.loaded();
+        element.onload = () => {
+            resource.loaded = true;
+            this.loaded(resource);
         };
 
-        resource.onerror = () => {
-            this.loaded();
+        element.onerror = () => {
+            this.loaded(resource);
         };
 
-        resource[srcName] = url;
-        document.body.appendChild(resource);
+        element[srcName] = resource.src;
+        document.body.appendChild(element);
     }
 
-    loaded() {
+    loaded(resource) {
         this.loadedCount++;
         this.updateProgress();
+
+        if (resource.required && this.loadingTimedOut) {
+            this.scheduleComplete(0);
+        }
 
         if (this.loadedCount === this.resourcesTotal) {
             this.complete();
@@ -124,12 +128,21 @@ export default class Loader {
 
     scheduleComplete(timeout){
         this.timeoutId = setTimeout(() => {
-            this.complete();
+            let isAllRequiredLoaded = this.resources.some((resource) => {
+                return resource.required && resource.loaded;
+            });
+
+            if (isAllRequiredLoaded){
+                this.complete();
+            } else {
+                this.loadingTimedOut = true;
+            }
+
         }, timeout);
     }
 
     simulateProgress(){
-        var iteration = 0;
+        let iteration = 0;
 
         this.intervalId = setInterval(() => {
             iteration++;
@@ -142,5 +155,32 @@ export default class Loader {
                 clearInterval(this.intervalId);
             }
         }, INTERVAL_TIME);
+    }
+
+    getManifest(config){
+        let urls = config.common.concat(config.dpiDependent);
+
+        let resources = urls.map((url) => {
+            let resource;
+
+            if (typeof(url) === 'string') {
+                if (url.lastIndexOf('!') === url.length - 1) {
+                    resource = {
+                        src: url.substr(0, url.length - 1),
+                        required: true
+                    };
+                } else {
+                    resource = { src: url };
+                }
+            } else {
+                resource = url;
+            }
+
+            return resource;
+        });
+
+        return resources.sort((resource) => {
+            return resource.required ? -1 : 1;
+        });
     }
 };

@@ -67,12 +67,19 @@ require(['loadic/loadic.amd'], function(Loader){
 ### Options
 
 #### common
-Array of assets urls.
+Array of assets urls. 
 **Default: []**
 
 #### dpiDependent
 Array of dpi dependent images which have high resolution versions.
 **Default: []**
+
+#### ```!``` suffix
+Append ```!``` suffix to file name, if it is required for your project. For example: ```'scripts/core.js!'```. This files will be loaded first. Also, if timeout option is set, it does not fire ```onComplete``` on expiration, while required resources are loaded.
+
+#### timeout
+When user has slow connection, he can bounce due to the long loading screen. Experiment with this option and network throttling to achieve the best user experience. When timeout expires, ```onComplete``` callback will be fired and you can minimize progress bar.
+**Default: false**
 
 #### highDpiSuffix
 Suffix which will be appended to dpi dependent images in case of high resolution screen detection.
@@ -82,9 +89,6 @@ Suffix which will be appended to dpi dependent images in case of high resolution
 This function is called to determine whether to use high definition resources or standard definition resources.
 **Default: ```window.devicePixelRatio > 1```**
 
-#### timeout
-When user has slow connection, he can bounce due to the long loading screen. Experiment with this option and network throttling to achieve the best user experience. When timeout expires, onComplete callback will be fired and you can minimize progress bar.
-**Default: false**
 
 ### License
 MIT
