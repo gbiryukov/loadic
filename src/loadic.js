@@ -63,6 +63,7 @@ export default class Loader {
 
     preload(resource) {
         let isStyle = /.css$/.test(resource.src),
+            isScript = /.js$/.test(resource.src),
             srcName = 'data',
             element = document.createElement('object');
 
@@ -70,9 +71,12 @@ export default class Loader {
             element = document.createElement('link');
             element.rel = 'stylesheet';
             srcName = 'href';
+        } else if (isScript) {
+            element = document.createElement('script');
+            srcName = 'src';
         } else {
-            element.width = 0;
-            element.height = 0;
+            element.style.width = 0;
+            element.style.height = 0;
         }
 
         element.onload = () => {

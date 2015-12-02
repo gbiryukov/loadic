@@ -73,6 +73,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 var _this = this;
 
                 var isStyle = /.css$/.test(resource.src),
+                    isScript = /.js$/.test(resource.src),
                     srcName = 'data',
                     element = document.createElement('object');
 
@@ -80,9 +81,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     element = document.createElement('link');
                     element.rel = 'stylesheet';
                     srcName = 'href';
+                } else if (isScript) {
+                    element = document.createElement('script');
+                    srcName = 'src';
                 } else {
-                    element.width = 0;
-                    element.height = 0;
+                    element.style.width = 0;
+                    element.style.height = 0;
                 }
 
                 element.onload = function () {
