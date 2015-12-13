@@ -81,7 +81,13 @@ define(['exports'], function (exports) {
             }
 
             for (var i in this.resources) {
-                this.preload(this.resources[i]);
+                var res = this.resources[i];
+
+                if (res.xhr) {
+                    this.XhrPreload(res);
+                } else {
+                    this.preload(res);
+                }
             }
 
             this.simulateProgress();
@@ -124,6 +130,28 @@ define(['exports'], function (exports) {
                 document.body.appendChild(element);
             }
         }, {
+            key: 'XhrPreload',
+            value: function XhrPreload(resource) {
+                var _this2 = this;
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', resource.src, true);
+                xhr.responseType = 'arraybuffer';
+
+                xhr.onload = function (event) {
+                    resource.loaded = true;
+                    resource.data = event.target.response;
+
+                    _this2.loaded(resource);
+                };
+
+                xhr.onerror = function () {
+                    _this2.loaded(resource);
+                };
+
+                xhr.send();
+            }
+        }, {
             key: 'loaded',
             value: function loaded(resource) {
                 this.loadedCount++;
@@ -144,7 +172,7 @@ define(['exports'], function (exports) {
                 clearInterval(this.timeoutId);
 
                 if ('onComplete' in this) {
-                    this.onComplete();
+                    this.onComplete(this.resources);
                 }
             }
         }, {
@@ -167,34 +195,34 @@ define(['exports'], function (exports) {
         }, {
             key: 'scheduleComplete',
             value: function scheduleComplete(timeout) {
-                var _this2 = this;
+                var _this3 = this;
 
                 this.timeoutId = setTimeout(function () {
-                    var isAllRequiredLoaded = _this2.resources.some(function (resource) {
+                    var isAllRequiredLoaded = _this3.resources.some(function (resource) {
                         return resource.required && resource.loaded;
                     });
 
                     if (isAllRequiredLoaded) {
-                        _this2.complete();
+                        _this3.complete();
                     } else {
-                        _this2.loadingTimedOut = true;
+                        _this3.loadingTimedOut = true;
                     }
                 }, timeout);
             }
         }, {
             key: 'simulateProgress',
             value: function simulateProgress() {
-                var _this3 = this;
+                var _this4 = this;
 
                 var iteration = 0;
                 this.intervalId = setInterval(function () {
                     iteration++;
-                    var progressInc = 5 / Math.ceil(iteration / 10) * (1 - _this3.progress / 100);
+                    var progressInc = 5 / Math.ceil(iteration / 10) * (1 - _this4.progress / 100);
 
-                    if (_this3.progress + progressInc < 95) {
-                        _this3.updateProgress(_this3.progress + progressInc);
+                    if (_this4.progress + progressInc < 95) {
+                        _this4.updateProgress(_this4.progress + progressInc);
                     } else {
-                        clearInterval(_this3.intervalId);
+                        clearInterval(_this4.intervalId);
                     }
                 }, INTERVAL_TIME);
             }
@@ -203,18 +231,18 @@ define(['exports'], function (exports) {
             value: function getManifest(config) {
                 var urls = config.common.concat(config.dpiDependent);
                 var resources = urls.map(function (url) {
-                    var resource = undefined;
+                    var resource = {};
 
                     if (typeof url === 'string') {
                         if (url.lastIndexOf('!') === url.length - 1) {
-                            resource = {
-                                src: url.substr(0, url.length - 1),
-                                required: true
-                            };
+                            resource.src = url.substr(0, url.length - 1);
+                            resource.required = true;
+                        } else if (url.lastIndexOf('*') === url.length - 1) {
+                            resource.src = url.substr(0, url.length - 1);
+                            resource.required = true;
+                            resource.xhr = true;
                         } else {
-                            resource = {
-                                src: url
-                            };
+                            resource.src = url;
                         }
                     } else {
                         resource = url;

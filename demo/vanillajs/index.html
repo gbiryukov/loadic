@@ -49,6 +49,7 @@
                     common: [
                         'images/example1.jpg',
                         'images/example3.bmp!',
+                        'https://avatars3.githubusercontent.com/u/6758384?v=3&s=460*',
                         'css/external.css'
                     ],
                     dpiDependent: [
@@ -67,6 +68,7 @@
 
             loader.onComplete = function(){
                 button.innerHTML = 'Готово';
+                console.log(loader.resources);
             };
 
             button.setAttribute('disabled', true);

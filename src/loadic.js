@@ -53,7 +53,13 @@ export default class Loader {
         }
 
         for (let i in this.resources){
-            this.preload(this.resources[i]);
+            let res = this.resources[i];
+
+            if (res.xhr) {
+                this.XhrPreload(res);
+            } else {
+                this.preload(res);
+            }
         }
 
         this.simulateProgress();
@@ -92,6 +98,24 @@ export default class Loader {
         document.body.appendChild(element);
     }
 
+    XhrPreload(resource){
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', resource.src, true);
+        xhr.responseType = 'arraybuffer';
+
+        xhr.onload = (event) => {
+            resource.loaded = true;
+            resource.data = event.target.response;
+            this.loaded(resource);
+        };
+
+        xhr.onerror = () => {
+            this.loaded(resource);
+        };
+
+        xhr.send();
+    }
+
     loaded(resource) {
         this.loadedCount++;
         this.updateProgress();
@@ -110,7 +134,7 @@ export default class Loader {
         clearInterval(this.timeoutId);
 
         if ('onComplete' in this){
-            this.onComplete();
+            this.onComplete(this.resources);
         }
     }
 
@@ -165,16 +189,18 @@ export default class Loader {
         let urls = config.common.concat(config.dpiDependent);
 
         let resources = urls.map((url) => {
-            let resource;
+            let resource = {};
 
             if (typeof(url) === 'string') {
                 if (url.lastIndexOf('!') === url.length - 1) {
-                    resource = {
-                        src: url.substr(0, url.length - 1),
-                        required: true
-                    };
+                    resource.src = url.substr(0, url.length - 1);
+                    resource.required = true;
+                } else if (url.lastIndexOf('*') === url.length - 1) {
+                    resource.src = url.substr(0, url.length - 1);
+                    resource.required = true;
+                    resource.xhr = true;
                 } else {
-                    resource = { src: url };
+                    resource.src = url;
                 }
             } else {
                 resource = url;
