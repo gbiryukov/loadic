@@ -59,7 +59,8 @@
                     highDpiCondition: function(){
                         return window.innerHeight > 800 || window.devicePixelRatio > 1;
                     },
-                    timeout: 3000
+                    timeout: 3000,
+                    baseUrl: 'https://raw.githubusercontent.com/gbiryukov/loadic/master/demo/amd/'
                 });
 
             loader.onProgress = function(progress){

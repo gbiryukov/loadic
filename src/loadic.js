@@ -23,6 +23,10 @@ const DEFAULTS = {
     timeout: {
         type: Number,
         value: false
+    },
+    baseUrl: {
+        type: String,
+        value: ''
     }
 };
 
@@ -31,7 +35,7 @@ export default class Loader {
 
         // config sanitization
         for (let key in DEFAULTS){
-            if (!(config[key] instanceof DEFAULTS[key].type)) {
+            if (!(config[key] && config[key].constructor === DEFAULTS[key].type)) {
                 config[key] = DEFAULTS[key].value;
             }
         }
@@ -206,11 +210,13 @@ export default class Loader {
                 resource = url;
             }
 
+            if (resource.src.indexOf('http') !== 0) {
+                resource.src = `${config.baseUrl}${resource.src}`;
+            }
+
             return resource;
         });
 
-        return resources.sort((resource) => {
-            return resource.required ? -1 : 1;
-        });
+        return resources.sort(res => res.required ? -1 : 1);
     }
 };

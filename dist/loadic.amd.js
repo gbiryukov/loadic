@@ -52,6 +52,10 @@ define(['exports'], function (exports) {
         timeout: {
             type: Number,
             value: false
+        },
+        baseUrl: {
+            type: String,
+            value: ''
         }
     };
 
@@ -60,7 +64,7 @@ define(['exports'], function (exports) {
             _classCallCheck(this, Loader);
 
             for (var key in DEFAULTS) {
-                if (!(config[key] instanceof DEFAULTS[key].type)) {
+                if (!(config[key] && config[key].constructor === DEFAULTS[key].type)) {
                     config[key] = DEFAULTS[key].value;
                 }
             }
@@ -248,10 +252,14 @@ define(['exports'], function (exports) {
                         resource = url;
                     }
 
+                    if (resource.src.indexOf('http') !== 0) {
+                        resource.src = '' + config.baseUrl + resource.src;
+                    }
+
                     return resource;
                 });
-                return resources.sort(function (resource) {
-                    return resource.required ? -1 : 1;
+                return resources.sort(function (res) {
+                    return res.required ? -1 : 1;
                 });
             }
         }]);

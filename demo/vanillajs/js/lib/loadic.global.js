@@ -28,6 +28,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         timeout: {
             type: Number,
             value: false
+        },
+        baseUrl: {
+            type: String,
+            value: ''
         }
     };
 
@@ -37,7 +41,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             // config sanitization
             for (var key in DEFAULTS) {
-                if (!(config[key] instanceof DEFAULTS[key].type)) {
+                if (!(config[key] && config[key].constructor === DEFAULTS[key].type)) {
                     config[key] = DEFAULTS[key].value;
                 }
             }
@@ -228,11 +232,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                         resource = url;
                     }
 
+                    if (resource.src.indexOf('http') !== 0) {
+                        resource.src = '' + config.baseUrl + resource.src;
+                    }
+
                     return resource;
                 });
 
-                return resources.sort(function (resource) {
-                    return resource.required ? -1 : 1;
+                return resources.sort(function (res) {
+                    return res.required ? -1 : 1;
                 });
             }
         }]);

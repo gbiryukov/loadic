@@ -11,7 +11,7 @@ Npm: ```npm install loadic```
 
 ### Usage
 
-CommonJS enviroment (ES6)
+ES6 modules
 
 ```JavaScript
 from 'loadic' import Loader;
@@ -36,7 +36,6 @@ loader.onComplete = () => {
 }
 
 ```
-
 
 AMD enviroment
 
@@ -76,6 +75,10 @@ var loader = new loadic({
 ```
 
 ### Options
+
+#### baseUrl
+Base url for assets. Will be prepended to each asset location that does not starts with `"http"`.
+**Default: ''**
 
 #### common
 Array of assets urls. 
